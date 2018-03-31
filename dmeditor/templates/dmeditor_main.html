@@ -1,27 +1,33 @@
-<!DOCTYPE html>
-<html>
-<head>
-{% load staticfiles %}
-<link rel="stylesheet" href="{% static "css/bootstrap.min.css" %}">
-<script src="{% static "js/bootstrap.min.js" %}"></script>
-<script src="https://code.jquery.com/jquery-3.3.1.js"  integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>
+{% extends "base.html" %}
+{% block title %}DM Editor{% endblock %}
 
-</head>
-<body>
-
-<h3>DM Editor</h3>
+{% block content %}
+<h3>DM Editor Main Page</h3>
 {{purpose}}
-
 
 <div class="container">
   <div class="row">
-    <div class="col-sm">
-      Allies
+    <div class="col-sm border border-success bg-dark">
+      <h2>Allies</h2>
+	  
+	  <div class = "row">
+		<a class = "btn btn-lg btn-bd-primary" href = "allyeditor">Add New Ally</a>
+	  </div>
+	  Most recent:
+	  <div class="container ">
+	  {% for ally in allies%}
+		{{ally.name}}
+		{{ally.url}}
+	  {% endfor %}
+	  </div>
+	  
+	  <div class="container">
+	  List All
+	  </div>
     </div>
-    <div class="col-sm">
-      Artifacts
+    <div class="col-sm border border-white bg-dark">
+      Items
     </div>
   </div>
 </div>
-</body>
-</html>
+{% endblock %}

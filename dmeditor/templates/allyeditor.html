@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Sheets{% endblock %}
+
+{% block content %}
+<h3>Ally Editor</h3>
+<div class = "row">
+	<a class = "btn btn-lg btn-bd-primary" href = "../"><- Back to Main</a>
+</div>
+
+<div class="container">
+	<form action="../submitAlly/" method= "post">
+		<div class = "row">
+			<label for="name-txt">Name:</label>
+			<input type="text" class="form-control" id="name-txt" name = "name">
+		</div>
+		<div class = "row">
+			<label for="personality-txt">Personality:</label>
+			<input type="text" class="form-control" id="personality-txt">
+		</div>
+		<div class = "row">
+			<label for="traits-txt">Traits:</label>
+			<input type="text" class="form-control" id="traits-txt">
+		</div>
+		<div class = "row">
+			<label for="imgurl-txt">Image URL:</label>
+			<input type="text" class="form-control" id="imgurl-txt">
+		</div>
+		<div class="row">
+			<label for="description-txt">Description:</label>
+			<textarea class="form-control" rows="2" id="description-txt"></textarea>
+		</div>
+
+		<div class="row">
+			<label for="level-box">Levels:</label>
+			<div class = "container" id = "level-box">
+				{% for level in levels%}
+				<div class = "row">
+					{{ forloop.counter }} : {{level}}
+				</div>
+				{% endfor %}
+				
+			</div>
+		</div>
+		{% csrf_token %}
+		<button type="submit" class="btn btn-default">Submit</button>
+	</form>
+</div>
+
+{% endblock %}
+
+<script>
+var maxLevel = {{maxLevel}}; //Keeps track of the highest level on the page currently
+</script>

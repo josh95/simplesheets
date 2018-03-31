@@ -19,5 +19,6 @@ from django.conf.urls import include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('dmeditor/', include('dmeditor.urls'))
+    path('dmeditor/', include('dmeditor.urls')),
+    path('sheets/', include('sheets.urls'))
 ]

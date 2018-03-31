@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Sheets{% endblock %}
+
+{% block content %}
+<h3>Your Character Sheets</h3>
+
+<div class="container">
+  <div class = "row">
+	{% for sheet in sheets%}
+		<a href = "sheeteditor">
+			<div class = "col-sm border border-primary">
+				<h4>{{sheet.name}}</h4>
+				<img src="{{sheet.image}}" alt="Avatar" class = "icon">
+				<p>{{sheet.description}}</p>
+			</div>
+		</a>
+	{% endfor %}
+  </div>
+</div>
+{% endblock %}
