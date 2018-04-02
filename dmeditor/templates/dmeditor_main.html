@@ -15,19 +15,59 @@
 	  </div>
 	  Most recent:
 	  <div class="container ">
-	  {% for ally in allies%}
+	  {% for ally in recentallies%}
 		{{ally.name}}
 		{{ally.url}}
 	  {% endfor %}
 	  </div>
-	  
-	  <div class="container">
 	  List All
+	  <div class="container">
+		<div class = "row">
+			{% for ally in allies%}
+				<a href = "allyeditor?param={{ally.id}}">
+					<div class = "col-sm">
+						<h4>{{ally.name}}</h4>
+						<img src="{{ally.image}}" alt="Avatar" class = "icon ally-icon" title = "{{ally.name}}" data-toggle="tooltip">
+					</div>
+				</a>
+			{% endfor %}
+		</div>
 	  </div>
     </div>
     <div class="col-sm border border-white bg-dark">
-      Items
+      <h2>Items</h2>
+	  <div class = "row">
+		<a class = "btn btn-lg btn-bd-primary" href = "itemeditor">Add New Item</a>
+	  </div>
+	  Most recent:
+	  <div class="container ">
+		  {% for item in recentitems%}
+			{{item.name}}
+			{{item.url}}
+		  {% endfor %}
+	  </div>
+	  List All
+	  <div class="container">
+		<div class = "row">
+			{% for item in items%}
+				<a href = "itemeditor?param={{item.id}}">
+					<div class = "col-sm">
+						<h4>{{item.name}}</h4>
+						<img src="{{item.image}}" alt="Avatar" class = "icon ally-icon" title = "{{item.name}}" data-toggle="tooltip">
+					</div>
+				</a>
+			{% endfor %}
+		</div>
+	  </div>
     </div>
   </div>
 </div>
+
+<script>
+
+
+$(document).ready(function() {
+	$(".ally-icon").tooltip({title: "Hooray", placement: "top"});
+});
+</script>
 {% endblock %}

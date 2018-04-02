@@ -2,12 +2,12 @@
 {% block title %}Sheets{% endblock %}
 
 {% block content %}
-<h3>Ally Editor</h3>
+<h3>Item Editor</h3>
 <div class = "row">
 	<a class = "btn btn-lg btn-bd-primary" href = "../?dm_id={{dm_id}}"><- Back to Main</a>
 </div>
 <div class="container">
-	<form action="../submitAlly/" method= "post">
+	<form action="../submitItem/" method= "post">
 		<div class = "form-row">
 			<div class = "col-md-5">
 				<label for="name-txt">Name:</label>
@@ -19,42 +19,10 @@
 				<input type="text" class="form-control" id="imgurl-txt" name = "imgurl" value = "{{imgurl}}">
 			</div>
 		</div>
-		
-		<div class="form-row">
-			<div class="form-group col-md-7">
-			    <label for="personality-txt">Personality</label>
-			    <input type="text" class="form-control" id="personality-txt" name = "personality" value = "{{personality}}">
-			</div>
-			<div class="form-group col-md-5">
-			    <label for="inputState">Traits:</label><br>
-					<select class="mdb-select " name = "traits" multiple="multiple">
-						<option value="1">Possessive</option>
-						<option value="2">Polygamous</option>
-						<option value="3">Unfaithful</option>
-						<option value="4">Hard to Please</option>
-						<option value="5">Easy to Please</option>
-					</select>
-			</div>
-		</div>
 
 		<div class="row">
 			<label for="description-txt">Description:</label>
 			<textarea class="form-control" rows="2" id="description-txt" name = "description">{{description}}</textarea>
-		</div>
-
-		<div class="row">
-			<label for="level-box">Levels:</label>
-			<div class = "container" id = "level-box">
-				{% for level in levels%}
-				<div class = "row">
-					
-					<label for="name-txt">Level {{ forloop.counter }} Ability:</label>
-					<input type="text" class="form-control" name = "level" value = "{{level}}">
-				</div>
-				{% endfor %}
-				
-			</div>
-			<button type="button" class="btn btn-secondary" id = "addLevel" onclick="addLevels()">+</button>
 		</div>
 		
 		<input type = "hidden" name = "edittingID" value = {{edit}}>
