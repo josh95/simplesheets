@@ -2,12 +2,12 @@
 {% block title %}Sheets{% endblock %}
 
 {% block content %}
-<h3>Your Character Sheets</h3>
+<h3>{{player}}'s Character Sheets</h3>
 
 <div class="container">
   <div class = "row">
 	{% for sheet in sheets%}
-		<a href = "sheeteditor">
+		<a href = "../sheeteditor">
 			<div class = "col-sm border border-primary">
 				<h4>{{sheet.name}}</h4>
 				<img src="{{sheet.image}}" alt="Avatar" class = "icon">
@@ -15,6 +15,16 @@
 			</div>
 		</a>
 	{% endfor %}
+		
+	<a href = "sheeteditor">
+		<div class = "col-sm border border-primary">
+			<h4>Add New Character</h4>
+			<span class="glyphicon glyphicon-plus" aria-hidden="false"></span>
+		</div>
+		
+	</a>
+	
+	
   </div>
 </div>
 {% endblock %}

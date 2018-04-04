@@ -13,6 +13,8 @@ class Sheets(models.Model):
     sheet_id = models.AutoField(primary_key=True)
     player_id = models.IntegerField(default=0)
     character_name = models.CharField(max_length=200)
+    img_url = models.CharField(max_length=300)
+    description = models.CharField(max_length=1000)
 
 class Attributes(models.Model):
     attr_id = models.AutoField(primary_key=True)
