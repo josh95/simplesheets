@@ -4,4 +4,124 @@
 {% block content %}
 
 <h3>{{charName}} Character Sheet</h3>
+<button type="button" class="btn btn-primary" onclick="saveChanges()">Save changes</button>
+<button type="button" class="btn btn-primary" onclick= "window.history.back()">Back to Main</button>
+
+<div class = "row mx-2">
+	<div class ="col-sm bg-secondary mx-2">
+		<div class = "row bg-dark"><h3 class = "ml-5">Attributes</h3></div>
+		<div class = "row mx-2">
+			<div class = "col-sm">...</div>
+			<div class = "col-sm">Value</div>
+			<div class = "col-sm">Temp Modifier</div>
+		</div>
+		
+		<div id = "attr-cont">
+			
+		</div>
+		<button type="button" class="btn btn-primary" onclick="addAttribute()">
+			Add New
+		</button>
+	</div>
+	<div class ="col-sm bg-secondary mx-2">
+		<div class = "row bg-dark"><h3 class = "ml-5">Portrait</h3></div>
+		<div class = "row">
+			<img src="{{imgurl}}" alt="Avatar" class = "profile-pic center" title = "{{charName}}">
+		</div>
+	</div>
+</div>
+<div class = "row mx-2">
+	<div class ="col-sm bg-secondary m-2">
+		<div class = "row bg-dark"><h3 class = "ml-5">Allies</h3></div>
+		stuff
+		<div class = "row">
+			<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#allyModal">
+				Add Ally
+			</button>
+		</div>
+	</div>
+	<div class ="col-sm bg-secondary m-2">
+		<div class = "row bg-dark"><h3 class = "ml-5">Items</h3></div>
+		stuff
+		<div class = "row">
+			<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#itemModal">
+				Add Item
+			</button>
+		</div>
+	</div>
+</div>
+
+
+
+<!-- Ally Modal -->
+<div class="modal fade" id="allyModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="bg-secondary modal-content" style = "color:black;">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        ...
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Item Modal -->
+<div class="modal fade" id="itemModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        ...
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+
+function addAttribute(){
+	var attrText = "<div class= 'row'><div class = 'col-sm'><input type=text' class='form-control attr-name bg-dark text-white' ></div>" +
+	"<div class = 'col-sm'><input type='text' class = 'attr-main spinner' value = '0'></div>" + 
+	"<div class = 'col-sm'><input type='text' class = 'attr-temp spinner' value ='0'></div></div>";
+	$("#attr-cont").append(attrText);
+	$( ".spinner" ).spinner({
+	  classes: {
+		"ui-spinner": "highlight"
+	  }
+	});
+}
+
+function saveChanges(){
+//round up inputs and save them
+	$.ajax({
+	  method: "POST",
+	  url: "saveChanges/",
+	  data: {},
+	  success: function(response) {
+			alert("Changes Saved)
+	  },
+	  error: function(response) {
+			alert("error");
+	  }
+	});
+}
+</script>
 {% endblock %}

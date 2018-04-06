@@ -7,7 +7,7 @@
 <div class="container">
   <div class = "row">
 	{% for sheet in sheets%}
-		<a href = "../sheeteditor">
+		<a href = "../sheeteditor/?sheetID={{sheet.id}}">
 			<div class = "col-sm border border-primary">
 				<h4>{{sheet.name}}</h4>
 				<img src="{{sheet.image}}" alt="Avatar" class = "icon">
@@ -16,12 +16,11 @@
 		</a>
 	{% endfor %}
 		
-	<a href = "sheeteditor">
+	<a href = "../sheeteditor">
 		<div class = "col-sm border border-primary">
 			<h4>Add New Character</h4>
 			<span class="glyphicon glyphicon-plus" aria-hidden="false"></span>
 		</div>
-		
 	</a>
 	
 	
