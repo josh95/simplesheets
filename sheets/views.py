@@ -36,8 +36,15 @@ def sheetEditor(request):
         return redirect("../sheetMain")
 
     sheet_id = request.GET.get('sheetID')
-    
-    context = {"playerID" :player_id}
+    dm_id = Player.objects.get(player_id = int(player_id)).dm_id
+    allAllies = []
+    for ally in Allies.objects.filter(dm_id = dm_id):
+        allAllies.append({
+            "name": ally.ally_name,
+            "image" : ally.img_url,
+            "description" : ally.description,
+            "id": ally.ally_id})
+    context = {"playerID" :player_id, "allAllies": allAllies}
     if sheet_id is None:
         #new sheet
         return render(request, "charsheet.html", context)
@@ -55,3 +62,17 @@ def checkUser(request):
     except:
         pass
     return HttpResponse(player_id, content_type="application/json")
+
+def saveChanges(request):
+    print("poop")
+    success = [1,2,3]
+    return HttpResponse(success, content_type="application/json")
+
+def getLevels(request):
+    allyID = int(request.GET.get('allyID'))
+    level = int(request.GET.get('level')) -1
+    levelList = []
+    for item in Levels.objects.filter(level__lte = level, ally_id = allyID):
+        levelList.append(item.description)
+    return HttpResponse(json.dumps(levelList), content_type="application/json")
+    

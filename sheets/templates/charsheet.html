@@ -3,7 +3,8 @@
 
 {% block content %}
 
-<h3>{{charName}} Character Sheet</h3>
+<h3> <input class= "text-line" autocomplete=off type= "text" id = "charName" value = "{{charName}}"> Character Sheet</h3>
+
 <button type="button" class="btn btn-primary" onclick="saveChanges()">Save changes</button>
 <button type="button" class="btn btn-primary" onclick= "window.history.back()">Back to Main</button>
 
@@ -11,7 +12,7 @@
 	<div class ="col-sm bg-secondary mx-2">
 		<div class = "row bg-dark"><h3 class = "ml-5">Attributes</h3></div>
 		<div class = "row mx-2">
-			<div class = "col-sm">...</div>
+			<div class = "col-sm"></div>
 			<div class = "col-sm">Value</div>
 			<div class = "col-sm">Temp Modifier</div>
 		</div>
@@ -26,16 +27,19 @@
 	<div class ="col-sm bg-secondary mx-2">
 		<div class = "row bg-dark"><h3 class = "ml-5">Portrait</h3></div>
 		<div class = "row">
-			<img src="{{imgurl}}" alt="Avatar" class = "profile-pic center" title = "{{charName}}">
+			<div data-toggle="modal" data-target="#portraitModal" class ="center">
+				<img id = "profile" src="{{imgurl}}" alt="Avatar" class = "profile-pic" title = "{{charName}}">
+			</div>
 		</div>
 	</div>
 </div>
 <div class = "row mx-2">
 	<div class ="col-sm bg-secondary m-2">
 		<div class = "row bg-dark"><h3 class = "ml-5">Allies</h3></div>
-		stuff
+		<div id = "ally-box" class = "row">
+		</div>
 		<div class = "row">
-			<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#allyModal">
+			<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#allyModal" onclick= "clearAlly()">
 				Add Ally
 			</button>
 		</div>
@@ -55,29 +59,53 @@
 
 <!-- Ally Modal -->
 <div class="modal fade" id="allyModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="bg-secondary modal-content" style = "color:black;">
+  <div class="modal-dialog top-20 width-80 height-80" role="document">
+    <div class="bg-secondary modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+        <h5 class="modal-title" id="exampleModalLabel">Edit Ally</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <div class="modal-body">
-        ...
+	  
+	  <div class="modal-body">
+		<div class = "row">
+			<div class="col-sm-3">
+				<input name = "type" id = "given-name-txt" value = "" class=  "form-control">
+			</div>
+			<select name = "type" id = "ally-select" class="form-control col-sm-5 h-25">
+				{%for ally in allAllies%}
+					<option value="{{ally.id}}">{{ally.name}}</option>
+				{%endfor%}
+			</select>
+			<input name = "type" id = "level-select" class="spinner col-sm-2" value = "1">
+		</div>
+		
+		<div class = "row">
+			<div class = "col-sm-10">
+				Player's Notes:
+				<textarea class="form-control" rows="2" id="players-notes" name = "players-notes"></textarea>
+			</div>
+		</div>
+		<div class = "row">
+			<div id  ="level-details" class = "col-sm-10">
+				details about the selected ally's level abilities
+			</div>
+		</div>
+		<input type = "hidden" id = "edittingID">
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
+        <button type="button" class="btn btn-primary" onclick= "editAlly()">Save</button>
       </div>
     </div>
   </div>
 </div>
 
 <!-- Item Modal -->
-<div class="modal fade" id="itemModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
+<div class="modal fade mt-1" id="itemModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog top-20" role="document">
+    <div class="modal-content bg-secondary">
       <div class="modal-header">
         <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -89,14 +117,47 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
+        <button type="button" class="btn btn-primary" onclick = "editItem()">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Portrait Modal -->
+<div class="modal fade mt-1" id="portraitModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog top-20" role="document">
+    <div class="modal-content bg-secondary">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Portrait URL</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+		Portrait URL:
+        <input type="text" autocomplete=off class="form-control" value = "{{imgurl}}" id = "portrait-url">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" onclick="changePortrait()">Confirm</button>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-
+$(document).ready(function() {
+$('#level-select').spinner({
+	max:5,
+	min:0,
+    stop:function(e,ui){
+		if ($.isNumeric($( "#level-select" ).spinner( "value" ))){
+			getLevels();
+		}
+    }
+});
+});
+	
 function addAttribute(){
 	var attrText = "<div class= 'row'><div class = 'col-sm'><input type=text' class='form-control attr-name bg-dark text-white' ></div>" +
 	"<div class = 'col-sm'><input type='text' class = 'attr-main spinner' value = '0'></div>" + 
@@ -113,15 +174,75 @@ function saveChanges(){
 //round up inputs and save them
 	$.ajax({
 	  method: "POST",
-	  url: "saveChanges/",
+	  url: "../saveChanges/",
 	  data: {},
 	  success: function(response) {
-			alert("Changes Saved)
+			alert("Changes Saved");
 	  },
 	  error: function(response) {
 			alert("error");
 	  }
 	});
+}
+
+$("#ally-select").on( "change", function() {
+  getLevels();
+});
+
+function getLevels(){
+	var allyID = $("#ally-select").val();
+	$.ajax({
+	  method: "GET",
+	  url: "../getLevels/",
+	  data: {"level" : $( "#level-select" ).spinner( "value" ), "allyID":allyID},
+	  success: function(response) {
+			$("#level-details").html("");
+			for (index in response){
+				var insertHTML = "<div class = 'pt-1 bg-dark'>" + response[index] + "</div>"
+				$("#level-details").append(insertHTML);
+				$("#level-details").append("<br>");
+				
+			}
+	  },
+	  error: function(response) {
+			console.log(response)
+			alert("error");
+	  }
+	});
+}
+
+function changePortrait(){
+	$("#profile").attr("src", $("#portrait-url").val());
+}
+
+function clearAlly(){
+	$("#edittingID").val("");
+}
+
+function editAlly(){
+	var editting = $("#edittingID").val();
+	var givenName = $("#given-name-txt").val();
+	var allyId = $("#ally-select").val();
+	var allyType = $("#ally-select option:selected").text();
+	var level = $("#level-select").val();
+	var playersNotes = $("#players-notes").val();
+	if (editting == ""){
+	//adding new ally
+		var insertHTML = "<div class = 'ally-div col-sm' edittingID = " + editting + " allyID ='" + allyId + "' >" +
+		"<img src='' alt ='ally-icon' class = 'icon ally-icon'>" + 
+		"<p class= 'ally-given-name-p'>" + givenName + "</p>" + "<p class = 'ally-type-p'>" + allyType + "</p>"+
+		"<p class = 'level-p' level = "+ level +"> Level:" + level + "</p>" +
+		"</div>";
+		$("#ally-box").append(insertHTML);
+		
+	}
+	else{
+	//editting existing ally
+		alert(editting);
+	}
+}
+
+function editItem(){
 }
 </script>
 {% endblock %}

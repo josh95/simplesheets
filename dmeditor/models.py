@@ -47,4 +47,17 @@ class Items(models.Model):
     last_edit= models.DateTimeField('date editted')
     img_url = models.CharField(max_length=300)
     dm_id = models.IntegerField(default=0)
+
+class Ally_mapping(models.Model):
+    sheet_id = models.IntegerField(default=0)
+    ally_id = models.IntegerField(default=0)
+    ally_level = models.IntegerField(default=0)
+    player_notes = models.CharField(max_length=1000)
+    given_name = models.CharField(max_length=100)
+
+class Item_mapping(models.Model):
+    item_id = models.IntegerField(default=0)
+    sheet_id = models.IntegerField(default=0)
+    amount = models.IntegerField(default=0)
+    
     
