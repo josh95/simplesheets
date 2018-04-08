@@ -44,7 +44,17 @@ def sheetEditor(request):
             "image" : ally.img_url,
             "description" : ally.description,
             "id": ally.ally_id})
-    context = {"playerID" :player_id, "allAllies": allAllies}
+    allItems = []
+    for item in Items.objects.filter(dm_id=dm_id):
+        allItems.append({
+                "name": item.item_name,
+                "image" : item.img_url,
+                "description" : item.description,
+                "importance" : item.importance,
+                "id": item.item_id
+            })
+    
+    context = {"playerID" :player_id, "allAllies": allAllies, "allItems": allItems}
     if sheet_id is None:
         #new sheet
         return render(request, "charsheet.html", context)
@@ -75,4 +85,15 @@ def getLevels(request):
     for item in Levels.objects.filter(level__lte = level, ally_id = allyID):
         levelList.append(item.description)
     return HttpResponse(json.dumps(levelList), content_type="application/json")
+
+def getAllyDeets(request):
+    allyID = int(request.GET.get('allyID'))
+    ally = Allies.objects.get(ally_id = allyID)
+    return HttpResponse(json.dumps({"imgurl": ally.img_url, "description":ally.description}), content_type="application/json")
+
+def getItemDeets(request):
+    itemID = int(request.GET.get('itemID'))
+    item = Items.objects.get(item_id = itemID)
+    return HttpResponse(json.dumps({"imgurl": item.img_url, "description":item.description}), content_type="application/json")
+    
     

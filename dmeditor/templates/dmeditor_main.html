@@ -14,14 +14,14 @@
 		<a class = "btn btn-lg btn-bd-primary" href = "allyeditor">Add New Ally</a>
 	  </div>
 	  Most recent:
-	  <div class="container ">
+	  <div class="">
 	  {% for ally in recentallies%}
 		{{ally.name}}
 		{{ally.url}}
 	  {% endfor %}
 	  </div>
 	  List All
-	  <div class="container">
+	  <div class="">
 		<div class = "row">
 			{% for ally in allies%}
 				<a href = "allyeditor?param={{ally.id}}">

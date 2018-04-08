@@ -46,7 +46,7 @@
 	</div>
 	<div class ="col-sm bg-secondary m-2">
 		<div class = "row bg-dark"><h3 class = "ml-5">Items</h3></div>
-		stuff
+		<div id = "item-box"></div>
 		<div class = "row">
 			<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#itemModal">
 				Add Item
@@ -66,37 +66,46 @@
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
+
       </div>
 	  
 	  <div class="modal-body">
-		<div class = "row">
-			<div class="col-sm-3">
-				<input name = "type" id = "given-name-txt" value = "" class=  "form-control">
-			</div>
-			<select name = "type" id = "ally-select" class="form-control col-sm-5 h-25">
-				{%for ally in allAllies%}
-					<option value="{{ally.id}}">{{ally.name}}</option>
-				{%endfor%}
-			</select>
-			<input name = "type" id = "level-select" class="spinner col-sm-2" value = "1">
+		<div class= "col-sm-4">
+			<img src = "" id = "ally-portrait" class= "center">
 		</div>
 		
-		<div class = "row">
-			<div class = "col-sm-10">
-				Player's Notes:
-				<textarea class="form-control" rows="2" id="players-notes" name = "players-notes"></textarea>
+		<div class = "col-sm-8">
+			<div class = "row">
+				<div class="col-sm-3">
+					<input name = "type" id = "given-name-txt" value = "" class=  "form-control">
+				</div>
+				<select name = "type" id = "ally-select" class="form-control col-sm-4 h-25">
+					{%for ally in allAllies%}
+						<option value="{{ally.id}}">{{ally.name}}</option>
+					{%endfor%}
+				</select>
+				<input name = "type" id = "level-select" class="spinner col-sm-2" value = "1">
 			</div>
-		</div>
-		<div class = "row">
-			<div id  ="level-details" class = "col-sm-10">
-				details about the selected ally's level abilities
+			
+			<div class = "row">
+				<div class = "col-sm-10">
+					Player's Notes:
+					<textarea class="form-control" rows="2" id="players-notes" name = "players-notes"></textarea>
+				</div>
 			</div>
+			<div class = "row">
+				<div id  ="level-details" class = "col-sm-10">
+					details about the selected ally's level abilities
+				</div>
+			</div>
+			<input type = "hidden" id = "edittingID">
 		</div>
-		<input type = "hidden" id = "edittingID">
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" onclick= "editAlly()">Save</button>
+		<button type="button" class="btn btn-danger" data-dismiss="modal" onclick= "deleteAlly()">
+          Delete Ally
+        </button>
+        <button type="button" class="btn btn-primary" onclick= "editAlly()" data-dismiss="modal">Save</button>
       </div>
     </div>
   </div>
@@ -104,16 +113,34 @@
 
 <!-- Item Modal -->
 <div class="modal fade mt-1" id="itemModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog top-20" role="document">
+  <div class="modal-dialog top-20 width-80 height-80" role="document">
     <div class="modal-content bg-secondary">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+        <h5 class="modal-title" id="exampleModalLabel">Edit Item</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <div class="modal-body">
-        ...
+        <div class= "col-sm-4">
+			<img src = "" id = "item-portrait" class= "center">
+		</div>
+		
+		<div class = "col-sm-8">
+			<div class = "row">
+				<select name = "type" id = "item-select" class="form-control col-sm-4 h-25">
+					{%for item in allItems%}
+						<option value="{{item.id}}">{{item.name}}</option>
+					{%endfor%}
+				</select>
+				<input name = "type" id = "amount-select" class="spinner col-sm-3" value = "1">
+			</div>
+			
+			<div class = "row">
+				<div id = "item-description"></div>
+			</div>
+
+		</div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -156,6 +183,10 @@ $('#level-select').spinner({
 		}
     }
 });
+
+$('#amount-select').spinner({
+	min:0
+});
 });
 	
 function addAttribute(){
@@ -187,6 +218,11 @@ function saveChanges(){
 
 $("#ally-select").on( "change", function() {
   getLevels();
+  getAllyDeets();
+});
+
+$("#item-select").on( "change", function() {
+  getItemDeets();
 });
 
 function getLevels(){
@@ -216,33 +252,134 @@ function changePortrait(){
 }
 
 function clearAlly(){
+	//called when new ally button is clicked, reset fields in the ally modal.
 	$("#edittingID").val("");
+	
+	$("#given-name-txt").val("");
+	var level = $("#level-select").val(0);
+	var playersNotes = $("#players-notes").val("");
+	
+	getAllyDeets();
+	getLevels();
+}
+
+function generateID(){
+	var date = new Date();
+	var components = [
+		date.getYear(),
+		date.getMonth(),
+		date.getDate(),
+		date.getHours(),
+		date.getMinutes(),
+		date.getSeconds(),
+		date.getMilliseconds()
+	];
+
+	var timestamp = components.join("");
+	return timestamp;
 }
 
 function editAlly(){
+	//called when uses clicks 'save' after bringing up the ally modal
 	var editting = $("#edittingID").val();
 	var givenName = $("#given-name-txt").val();
 	var allyId = $("#ally-select").val();
 	var allyType = $("#ally-select option:selected").text();
 	var level = $("#level-select").val();
 	var playersNotes = $("#players-notes").val();
+	var imgurl  = $("#ally-portrait").attr("src");
 	if (editting == ""){
-	//adding new ally
-		var insertHTML = "<div class = 'ally-div col-sm' edittingID = " + editting + " allyID ='" + allyId + "' >" +
-		"<img src='' alt ='ally-icon' class = 'icon ally-icon'>" + 
-		"<p class= 'ally-given-name-p'>" + givenName + "</p>" + "<p class = 'ally-type-p'>" + allyType + "</p>"+
-		"<p class = 'level-p' level = "+ level +"> Level:" + level + "</p>" +
-		"</div>";
-		$("#ally-box").append(insertHTML);
-		
+	//adding new ally. don't delete anything.
 	}
 	else{
-	//editting existing ally
+	//editting existing ally. delete the existing one with that editting ID
 		alert(editting);
+		$("[edittingID='"+ editting+ "']").remove();
 	}
+	editting = generateID();
+	var insertHTML = "<div class = 'ally-div col-sm clickable' edittingID = '" + editting + "' allyID ='" + allyId + "' >" +
+	"<img src='"+ imgurl +"' alt ='ally-icon' class = 'icon ally-icon'>" + 
+	"<p class= 'ally-given-name-p'>" + givenName + "</p>" + "<p class = 'ally-type-p'>" + allyType + "</p>"+
+	"<p class = 'level-p' level = "+ level +"> Level:" + level + "</p>" +
+	"<p class = 'hidden player-notes-p'>"+ playersNotes +"</p>"
+	"</div>";
+	$("#ally-box").append(insertHTML);
 }
 
+$(document).on("click", ".ally-div", function() {
+	var edittingID = $("#edittingID").val($(this).attr("edittingID"));
+	var allyID = $(this).attr("allyID");
+	var givenName = $(this).find(".ally-given-name-p").text();
+	var level = $(this).find(".level-p").attr("level");
+	var playersNotes = $(this).find(".player-notes-p").text();
+	$("#given-name-txt").val(givenName);
+	$("#ally-select").val(allyID);
+	$("#level-select").val(level);
+	$("#players-notes").val(playersNotes);
+	getAllyDeets();
+	getLevels();
+	$("#allyModal").modal();
+	
+});
+
 function editItem(){
+	//don't need to generate unigue item ids. You shouldn't be able to add an item when the same item exists. use item id as unique key.
+	var itemId = $("#item-select").val();
+	var itemType = $("#item-select option:selected").text();
+	var imgurl  = $("#item-portrait").attr("src");
+	var amount = $("#amount-select").val();
+
+	$("[itemID='"+ itemId+ "']").remove();
+	
+	var insertHTML = "<div class = 'item-div col-sm clickable' itemID = '" + itemId + "'>" +
+	"<img src='"+ imgurl +"' alt ='item-icon' class = 'icon item-icon'>" + 
+	"<p class = 'item-type-p'>" + itemType + "</p>"+
+	"<p class = 'amount-p' amount = "+ amount +">" + amount + " x </p>" +
+	"</div>";
+	$("#item-box").append(insertHTML);
+}
+
+function getAllyDeets(){
+//get ally description and imgurl
+	var allyID = $("#ally-select").val();
+	$.ajax({
+	  method: "GET",
+	  url: "../getAllyDeets/",
+	  data: {"allyID":allyID},
+	  success: function(response) {
+		console.log(response);
+		$("#ally-portrait").attr("src", response['imgurl']);
+	  },
+	  error: function(response) {
+			console.log(response)
+			alert("error");
+	  }
+	});
+}
+
+function getItemDeets(){
+//get item description and imgurl
+	var itemID = $("#item-select").val();
+	$.ajax({
+	  method: "GET",
+	  url: "../getItemDeets/",
+	  data: {"itemID":itemID},
+	  success: function(response) {
+		console.log(response);
+		$("#item-portrait").attr("src", response['imgurl']);
+		$("#item-description").html(response['description']);
+	  },
+	  error: function(response) {
+			console.log(response)
+			alert("error");
+	  }
+	});
+}
+
+function deleteAlly(){
+	var editting = $("#edittingID").val();
+	$("[edittingID='"+ editting+ "']").remove();
 }
 </script>
+
 {% endblock %}
