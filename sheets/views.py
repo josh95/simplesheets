@@ -74,7 +74,8 @@ def checkUser(request):
     return HttpResponse(player_id, content_type="application/json")
 
 def saveChanges(request):
-    print("poop")
+    data = json.loads(request.POST["payload"])
+    print(data)
     success = [1,2,3]
     return HttpResponse(success, content_type="application/json")
 

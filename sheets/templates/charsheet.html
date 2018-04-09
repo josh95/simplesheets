@@ -46,9 +46,9 @@
 	</div>
 	<div class ="col-sm bg-secondary m-2">
 		<div class = "row bg-dark"><h3 class = "ml-5">Items</h3></div>
-		<div id = "item-box"></div>
+		<div id = "item-box" class = "row"></div>
 		<div class = "row">
-			<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#itemModal">
+			<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#itemModal" onclick= "clearItem()">
 				Add Item
 			</button>
 		</div>
@@ -144,7 +144,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" onclick = "editItem()">Save changes</button>
+        <button type="button" class="btn btn-primary" onclick = "editItem()" data-dismiss="modal">Save changes</button>
       </div>
     </div>
   </div>
@@ -190,7 +190,7 @@ $('#amount-select').spinner({
 });
 	
 function addAttribute(){
-	var attrText = "<div class= 'row'><div class = 'col-sm'><input type=text' class='form-control attr-name bg-dark text-white' ></div>" +
+	var attrText = "<div class= 'row'><div class = 'col-sm attr-row'><input type=text' class='form-control attr-name bg-dark text-white' ></div>" +
 	"<div class = 'col-sm'><input type='text' class = 'attr-main spinner' value = '0'></div>" + 
 	"<div class = 'col-sm'><input type='text' class = 'attr-temp spinner' value ='0'></div></div>";
 	$("#attr-cont").append(attrText);
@@ -203,16 +203,55 @@ function addAttribute(){
 
 function saveChanges(){
 //round up inputs and save them
+	var attributes = [];
+	var allies = [];
+	var items = [];
+	var portraitURL = $("#portrait-url").val();
+	var charName = $("#charName").val();
+	$(".ally-div").each(function() {
+		allies.push({"givenName" : $(this).find(".ally-given-name-p").text(),
+					 "playerNotes": $(this).find("player-notes-p").text(),
+					 "level": $(this).find(".level-p").attr("level"),
+					 "allyID": $(this).attr("allyid") 
+		});
+	});
+	$(".item-div").each(function() {
+		items.push({"amount": $(this).find(".amount-p").attr("amount"),
+					 "itemID": $(this).attr("itemid") 
+		});
+	});	
+	
+	var attrMainList = [];
+	var attrTempList = [];
+	$(".attr-main").each(function() {
+		attrMainList.push($(this).val());
+	});
+	
+	$(".attr-temp").each(function() {
+		 attrTempList.push($(this).val());
+	});
+	
+	$(".attr-row").each(function(key) {
+		attributes.push({"attrName": $(this).find(".attr-name").val(),
+					 "value": attrMainList[key],
+					 "tempMod": attrTempList[key]
+		});
+	});
+	
+
+	
+	console.log(attributes);
+	
 	$.ajax({
-	  method: "POST",
-	  url: "../saveChanges/",
-	  data: {},
-	  success: function(response) {
+		method: "POST",
+		url: "../saveChanges/",
+		data: {"payload":JSON.stringify({"attributes": attributes, "allies":allies, "items": items, "portraitURL": portraitURL, "charName": charName})},
+		success: function(response) {
 			alert("Changes Saved");
-	  },
-	  error: function(response) {
+		},
+		error: function(response) {
 			alert("error");
-	  }
+		}
 	});
 }
 
@@ -256,11 +295,17 @@ function clearAlly(){
 	$("#edittingID").val("");
 	
 	$("#given-name-txt").val("");
-	var level = $("#level-select").val(0);
+	$("#level-select").val(0);
 	var playersNotes = $("#players-notes").val("");
 	
 	getAllyDeets();
 	getLevels();
+}
+
+function clearItem(){
+	//called when new item button is clicked, reset fields in the item modal.
+	$("#amount-select").val(0);
+	getItemDeets();
 }
 
 function generateID(){
@@ -306,6 +351,23 @@ function editAlly(){
 	$("#ally-box").append(insertHTML);
 }
 
+function editItem(){
+	//don't need to generate unigue item ids. You shouldn't be able to add an item when the same item exists. use item id as unique key.
+	var itemId = $("#item-select").val();
+	var itemType = $("#item-select option:selected").text();
+	var imgurl  = $("#item-portrait").attr("src");
+	var amount = $("#amount-select").val();
+
+	$("[itemID='"+ itemId+ "']").remove();
+	
+	var insertHTML = "<div class = 'item-div col-sm clickable' itemID = '" + itemId + "'>" +
+	"<img src='"+ imgurl +"' alt ='item-icon' class = 'icon item-icon'>" + 
+	"<p class = 'item-type-p'>" + itemType + "</p>"+
+	"<p class = 'amount-p' amount = "+ amount +">&times; " + amount + "</p>" +
+	"</div>";
+	$("#item-box").append(insertHTML);
+}
+
 $(document).on("click", ".ally-div", function() {
 	var edittingID = $("#edittingID").val($(this).attr("edittingID"));
 	var allyID = $(this).attr("allyID");
@@ -322,22 +384,15 @@ $(document).on("click", ".ally-div", function() {
 	
 });
 
-function editItem(){
-	//don't need to generate unigue item ids. You shouldn't be able to add an item when the same item exists. use item id as unique key.
-	var itemId = $("#item-select").val();
-	var itemType = $("#item-select option:selected").text();
-	var imgurl  = $("#item-portrait").attr("src");
-	var amount = $("#amount-select").val();
-
-	$("[itemID='"+ itemId+ "']").remove();
+$(document).on("click", ".item-div", function() {
+	var itemID = $(this).attr("itemid");
+	var amount = $(this).find(".amount-p").attr("amount");
+	$("#item-select").val(itemID);
+	$("#amount-select").val(amount);
+	getItemDeets();
+	$("#itemModal").modal();
 	
-	var insertHTML = "<div class = 'item-div col-sm clickable' itemID = '" + itemId + "'>" +
-	"<img src='"+ imgurl +"' alt ='item-icon' class = 'icon item-icon'>" + 
-	"<p class = 'item-type-p'>" + itemType + "</p>"+
-	"<p class = 'amount-p' amount = "+ amount +">" + amount + " x </p>" +
-	"</div>";
-	$("#item-box").append(insertHTML);
-}
+});
 
 function getAllyDeets(){
 //get ally description and imgurl
