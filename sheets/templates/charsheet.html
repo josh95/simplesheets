@@ -5,6 +5,10 @@
 
 <h3> <input class= "text-line" autocomplete=off type= "text" id = "charName" value = "{{charName}}"> Character Sheet</h3>
 
+
+<input id = "player-id" type = "hidden" value = '{{playerID}}'>
+<input id = "sheet-id" type = "hidden" value = '{{sheetID}}'>
+
 <button type="button" class="btn btn-primary" onclick="saveChanges()">Save changes</button>
 <button type="button" class="btn btn-primary" onclick= "window.history.back()">Back to Main</button>
 
@@ -18,7 +22,18 @@
 		</div>
 		
 		<div id = "attr-cont">
-			
+			{% for attr in attributes%}
+				<div class= 'row attr-row'>
+						<input type='text' class='form-control attr-name bg-dark text-white col-sm-3' value = "{{attr.name}}">
+						<div class = 'col-sm-4'><input type='text' class = 'attr-main attr-spinner spinner' value = '{{attr.value}}'></div>
+						<div class = 'col-sm-4'><input type='text' class = 'attr-temp attr-spinner spinner' value ='{{attr.tempMod}}'></div>
+						<div class = 'col-sm-1'>
+							<button type="button" class="close attributeDelete" aria-label="Close" >
+								<span aria-hidden="true">&times;</span>
+							</button>
+						</div>
+				</div>
+			{%endfor%}
 		</div>
 		<button type="button" class="btn btn-primary" onclick="addAttribute()">
 			Add New
@@ -37,6 +52,14 @@
 	<div class ="col-sm bg-secondary m-2">
 		<div class = "row bg-dark"><h3 class = "ml-5">Allies</h3></div>
 		<div id = "ally-box" class = "row">
+		{% for ally in allies%}
+		<div class = 'ally-div col-sm clickable' edittingID = '{{ally.editting_id}}' allyID ='{{ally.ally_id}}' >
+			<img src= '{{ally.imgurl}}' alt ='ally-icon' class = 'icon ally-icon'>
+			<p class= 'ally-given-name-p'>{{ally.given_name}}</p><p class = 'ally-type-p'>{{ally.ally_name}}</p>
+			<p class = 'level-p' level = {{ally.level}}> Level: {{ally.level}}</p>
+			<p class = 'hidden player-notes-p'>{{ally.player_notes}}</p>
+		</div>
+		{% endfor %}
 		</div>
 		<div class = "row">
 			<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#allyModal" onclick= "clearAlly()">
@@ -46,7 +69,15 @@
 	</div>
 	<div class ="col-sm bg-secondary m-2">
 		<div class = "row bg-dark"><h3 class = "ml-5">Items</h3></div>
-		<div id = "item-box" class = "row"></div>
+		<div id = "item-box" class = "row">
+			{% for item in items %}
+			<div class = 'item-div col-sm clickable' itemID = '{{item.item_id}}'>
+				<img src='{{item.imgurl}}' alt ='item-icon' class = 'icon item-icon'>
+				<p class = 'item-type-p'>{{item.item_name}}</p>
+				<p class = 'amount-p' amount = {{item.amount}}>&times; {{item.amount}}</p>
+			</div>
+			{% endfor%}
+		</div>
 		<div class = "row">
 			<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#itemModal" onclick= "clearItem()">
 				Add Item
@@ -102,7 +133,7 @@
 		</div>
       </div>
       <div class="modal-footer">
-		<button type="button" class="btn btn-danger" data-dismiss="modal" onclick= "deleteAlly()">
+		<button type="button" class="btn btn-danger" data-dismiss="modal" onclick= "deleteStuff('ally')">
           Delete Ally
         </button>
         <button type="button" class="btn btn-primary" onclick= "editAlly()" data-dismiss="modal">Save</button>
@@ -143,7 +174,9 @@
 		</div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-danger" data-dismiss="modal" onclick= "deleteStuff('item')">
+          Delete Item
+        </button>
         <button type="button" class="btn btn-primary" onclick = "editItem()" data-dismiss="modal">Save changes</button>
       </div>
     </div>
@@ -174,25 +207,35 @@
 
 <script>
 $(document).ready(function() {
-$('#level-select').spinner({
-	max:5,
-	min:0,
-    stop:function(e,ui){
-		if ($.isNumeric($( "#level-select" ).spinner( "value" ))){
-			getLevels();
+	$( ".attr-spinner" ).spinner({
+	  classes: {
+		"ui-spinner": "highlight"
+	  }
+	});
+	
+	$('#level-select').spinner({
+		max:5,
+		min:0,
+		stop:function(e,ui){
+			if ($.isNumeric($( "#level-select" ).spinner( "value" ))){
+				getLevels();
+			}
 		}
-    }
-});
+	});
 
-$('#amount-select').spinner({
-	min:0
-});
+	$('#amount-select').spinner({
+		min:0
+	});
+
 });
 	
 function addAttribute(){
-	var attrText = "<div class= 'row'><div class = 'col-sm attr-row'><input type=text' class='form-control attr-name bg-dark text-white' ></div>" +
-	"<div class = 'col-sm'><input type='text' class = 'attr-main spinner' value = '0'></div>" + 
-	"<div class = 'col-sm'><input type='text' class = 'attr-temp spinner' value ='0'></div></div>";
+
+	var attrText = "<div class= 'row attr-row'><input type='text' class='form-control attr-name bg-dark text-white col-sm-3' >" +
+	"<div class = 'col-sm-4'><input type='text' class = 'attr-main spinner' value = '0'></div>" + 
+	"<div class = 'col-sm-4'><input type='text' class = 'attr-temp spinner' value ='0'></div>" +
+	"<div class = 'col-sm-1'><button type='button' class='close attributeDelete' aria-label='Close' >" +
+	"<span aria-hidden='true'>&times;</span></button></div></div>" ;
 	$("#attr-cont").append(attrText);
 	$( ".spinner" ).spinner({
 	  classes: {
@@ -210,7 +253,7 @@ function saveChanges(){
 	var charName = $("#charName").val();
 	$(".ally-div").each(function() {
 		allies.push({"givenName" : $(this).find(".ally-given-name-p").text(),
-					 "playerNotes": $(this).find("player-notes-p").text(),
+					 "playerNotes": $(this).find(".player-notes-p").text(),
 					 "level": $(this).find(".level-p").attr("level"),
 					 "allyID": $(this).attr("allyid") 
 		});
@@ -221,7 +264,7 @@ function saveChanges(){
 		});
 	});	
 	
-	var attrMainList = [];
+	/*var attrMainList = [];
 	var attrTempList = [];
 	$(".attr-main").each(function() {
 		attrMainList.push($(this).val());
@@ -229,25 +272,26 @@ function saveChanges(){
 	
 	$(".attr-temp").each(function() {
 		 attrTempList.push($(this).val());
-	});
+	});*/
 	
 	$(".attr-row").each(function(key) {
 		attributes.push({"attrName": $(this).find(".attr-name").val(),
-					 "value": attrMainList[key],
-					 "tempMod": attrTempList[key]
+					 //"value": attrMainList[key],
+					 "value": $(this).find(".attr-main").val(),
+					 //"tempMod": attrTempList[key]
+					 "tempMod": $(this).find(".attr-temp").val()
 		});
 	});
 	
-
-	
-	console.log(attributes);
 	
 	$.ajax({
 		method: "POST",
 		url: "../saveChanges/",
-		data: {"payload":JSON.stringify({"attributes": attributes, "allies":allies, "items": items, "portraitURL": portraitURL, "charName": charName})},
+		data: {"payload":JSON.stringify({"attributes": attributes, "allies":allies, "items": items, "portraitURL": portraitURL, 
+		"charName": charName, "playerID": $("#player-id").val(), "sheetID": $("#sheet-id").val(),})},
 		success: function(response) {
 			alert("Changes Saved");
+			$("#sheet-id").val(response["sheetID"]);
 		},
 		error: function(response) {
 			alert("error");
@@ -338,7 +382,6 @@ function editAlly(){
 	}
 	else{
 	//editting existing ally. delete the existing one with that editting ID
-		alert(editting);
 		$("[edittingID='"+ editting+ "']").remove();
 	}
 	editting = generateID();
@@ -431,10 +474,22 @@ function getItemDeets(){
 	});
 }
 
-function deleteAlly(){
-	var editting = $("#edittingID").val();
-	$("[edittingID='"+ editting+ "']").remove();
+function deleteStuff(type){
+	if (type == "ally"){
+		var editting = $("#edittingID").val();
+		$("[edittingID='"+ editting+ "']").remove();
+	}
+	if (type == "item"){
+		var editting = $("#item-select").val();
+		$("[itemid='"+ editting+ "']").remove();
+	}
 }
+
+$(document).on("click", ".attributeDelete", function() {
+	$(this).parent().parent().remove();
+});
+
+
 </script>
 
 {% endblock %}

@@ -7,6 +7,7 @@
 <div class="container">
   <div class = "row">
 	{% for sheet in sheets%}
+		<div>
 		<a href = "../sheeteditor/?sheetID={{sheet.id}}">
 			<div class = "col-sm border border-primary">
 				<h4>{{sheet.name}}</h4>
@@ -14,6 +15,8 @@
 				<p>{{sheet.description}}</p>
 			</div>
 		</a>
+		<button type="button" class="btn btn-danger" onclick= "deleteSheet({{sheet.id}}, $(this))">Delete Sheet</button>
+		</div>
 	{% endfor %}
 		
 	<a href = "../sheeteditor">
@@ -26,4 +29,24 @@
 	
   </div>
 </div>
+
+<script>
+function deleteSheet(sheetID, elem){
+	
+	if (confirm("Are you sure you want to delete this sheet?")){
+		$.ajax({
+			method: "POST",
+			url: "../deleteSheet/",
+			data: {"sheetID": sheetID},
+			success: function(response) {
+				console.log("deleted sheet " + sheetID);
+				elem.parent().remove();
+			},
+			error: function(response) {
+				alert("error");
+			}
+		});
+	}
+}
+</script>
 {% endblock %}

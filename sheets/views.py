@@ -64,6 +64,36 @@ def sheetEditor(request):
         context['charName'] = sheet.character_name
         context['imgurl'] = sheet.img_url
         context['description'] = sheet.description
+        context['attributes'] = []
+        for attr in Attributes.objects.filter(sheet_id=sheet_id):
+            context['attributes'].append({"name": attr.attribute_name,
+					 "value": attr.value,
+					 "tempMod": attr.temp_value})
+
+        context['allies']= []
+        for key, mapping in enumerate(Ally_mapping.objects.filter(sheet_id = sheet_id)):
+            get = Allies.objects.get(ally_id=mapping.ally_id)
+            imgurl = get.img_url
+            ally_name = get.ally_name
+            context['allies'].append({"ally_id": mapping.ally_id,
+                                     "level" : mapping.ally_level,
+                                     "player_notes" : mapping.player_notes,
+                                     "given_name" : mapping.given_name,
+                                     "imgurl" : imgurl,
+                                     "ally_name" : ally_name,
+                                     "editting_id" : key
+                                    })
+            
+        context['items'] = []
+        for mapping in Item_mapping.objects.filter(sheet_id = sheet_id):
+            get = Items.objects.get(item_id=mapping.item_id)
+            imgurl = get.img_url
+            item_name = get.item_name
+            context['items'].append({"item_id": mapping.item_id,
+                                    "amount": mapping.amount,
+                                    "imgurl": imgurl,
+                                    "item_name" : item_name
+                                    })
         return render(request, "charsheet.html", context)
 
 def checkUser(request):
@@ -75,9 +105,60 @@ def checkUser(request):
 
 def saveChanges(request):
     data = json.loads(request.POST["payload"])
-    print(data)
-    success = [1,2,3]
-    return HttpResponse(success, content_type="application/json")
+    sheetID = data["sheetID"]
+    playerID = int(data["playerID"])
+    if sheetID == "":
+        #new sheet
+        sheet = Sheets(player_id = playerID,
+               character_name = data['charName'],
+               img_url = data['portraitURL'],
+               description = ""
+               )
+        sheet.save()
+        sheetID = sheet.sheet_id
+    else:
+        sheetID = int(sheetID)
+        #editting existing sheet
+        sheet = Sheets(sheet_id = sheetID,
+                       player_id = playerID,
+                       character_name = data['charName'],
+                       img_url = data['portraitURL'],
+                       description = ""
+                       )
+        sheet.save()
+
+    Attributes.objects.filter(sheet_id=sheetID).delete()
+    for key, attribute in enumerate (data["attributes"]):
+        attr = Attributes(sheet_id= sheetID,
+                          attribute_name = attribute['attrName'],
+                          value = attribute['value'],
+                          temp_value = attribute['tempMod'],
+                          order = key
+            )
+        attr.save()
+
+    Ally_mapping.objects.filter(sheet_id=sheetID).delete()
+    for ally in data["allies"]:
+        mapping = Ally_mapping(
+                sheet_id = sheetID,
+                ally_id = int(ally['allyID']),
+                ally_level = int(ally['level']),
+                player_notes = ally['playerNotes'],
+                given_name = ally['givenName'],
+            )
+        mapping.save()
+
+    Item_mapping.objects.filter(sheet_id=sheetID).delete()
+    for item in data["items"]:
+        mapping = Item_mapping(
+                item_id = int(item['itemID']),
+                sheet_id = sheetID,
+                amount = int(item['amount']),
+            )
+        mapping.save()
+    
+    success = {"sheetID": sheetID}
+    return HttpResponse(json.dumps(success), content_type="application/json")
 
 def getLevels(request):
     allyID = int(request.GET.get('allyID'))
@@ -97,4 +178,11 @@ def getItemDeets(request):
     item = Items.objects.get(item_id = itemID)
     return HttpResponse(json.dumps({"imgurl": item.img_url, "description":item.description}), content_type="application/json")
     
-    
+
+def deleteSheet(request):
+    sheetID = request.POST.get('sheetID')
+    Attributes.objects.filter(sheet_id=sheetID).delete()
+    Ally_mapping.objects.filter(sheet_id=sheetID).delete()
+    Item_mapping.objects.filter(sheet_id=sheetID).delete()
+    Sheets.objects.filter(sheet_id=sheetID).delete()
+    return HttpResponse(json.dumps([]), content_type="application/json")
